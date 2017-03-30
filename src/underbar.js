@@ -94,7 +94,6 @@
         });
 
         return result;
-
     };
 
     // Return all elements of an array that don't pass a truth test.
@@ -441,39 +440,138 @@
 
     // Calls the method named by functionOrKey on each value in the list.
     // Note: You will need to learn a bit about .apply to complete this.
-    _.invoke = function(collection, functionOrKey, args) {};
+    _.invoke = function(collection, functionOrKey, args) {
+
+        return _.map(collection, function(e){
+            if (functionOrKey.apply){
+                return functionOrKey.apply(e, args);
+            } else {
+                return e[functionOrKey]();
+            }
+        });
+
+    };
 
     // Sort the object's values by a criterion produced by an iterator.
     // If iterator is a string, sort objects by that property with the name
     // of that string. For example, _.sortBy(people, 'name') should sort
     // an array of people by their name.
-    _.sortBy = function(collection, iterator) {};
+    _.sortBy = function(collection, iterator) {
+
+
+        var collection = collection.sort(function(a, b){
+
+            if (a === undefined) {
+                return 1;
+            }
+
+            if (b === undefined) {
+                return -1;
+            }
+
+            if (typeof iterator === 'function') {
+                [a, b] = [iterator(a), iterator(b)];
+            }
+
+            if (typeof iterator === 'string') {
+                [a, b] = [a[iterator], b[iterator]];
+            }
+
+            return (a === b) ? 0 : (a > b) ? 1 : -1;
+        });
+
+        return collection;
+    };
 
     // Zip together two or more arrays with elements of the same index
     // going together.
     //
     // Example:
-    // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
-    _.zip = function() {};
+    // _.zip(['a','b','c','d'], [1,2,3]) 
+    // returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
+    _.zip = function(keys,values) {
+
+        var result = [];
+        var args = arguments.length > 2 ? arguments[2] : undefined;
+        var group;
+        
+        keys.forEach(function(key,index){
+            group = [ key, values[index] ];
+            if ( args ){ group.push(args[index]); }
+            result.push( group );
+        });
+
+        return result;
+    };
 
     // Takes a multidimensional array and converts it to a one-dimensional array.
     // The new array should contain all elements of the multidimensional array.
     //
     // Hint: Use Array.isArray to check if something is an array
-    _.flatten = function(nestedArray, result) {};
+    _.flatten = function(nestedArray, result) {
+
+        result = result || [];
+
+        nestedArray.forEach(function(e){
+            if ( Array.isArray(e) ){ result = _.flatten(e, result); }
+            else { result.push(e); }
+        });
+
+        return result;
+    };
 
     // Takes an arbitrary number of arrays and produces an array that contains
     // every item shared between all the passed-in arrays.
-    _.intersection = function() {};
+    _.intersection = function() {
+        var result = [];
+        var args = Array.prototype.slice.call(arguments);
+        var first = args.shift();
+
+        first.forEach(function(e){
+            args.forEach(function(arr){
+                if ( arr.includes(e) ){ result.push(e); }
+            });
+        });
+        return result;
+    };
 
     // Take the difference between one array and a number of other arrays.
     // Only the elements present in just the first array will remain.
-    _.difference = function(array) {};
+    _.difference = function(array) {
+
+        var args = Array.prototype.slice.call(arguments,1);
+        var result = [];
+
+        array.forEach(function(e){
+            if ( _.every( args, function(arr){ return !arr.includes(e); }) ){
+                result.push(e);
+            }
+        });        
+    
+        return result;
+
+    };
 
     // Returns a function, that, when invoked, will only be triggered at most once
     // during a given window of time.  See the Underbar readme for extra details
     // on this function.
     //
     // Note: This is difficult! It may take a while to implement.
-    _.throttle = function(func, wait) {};
+    _.throttle = function(func, wait) {
+
+        var called = false;
+        return function(){
+
+            if (!called){
+                called = true;
+                setTimeout(function(){
+                    func.apply(this, arguments);
+                    called = false;
+                }, wait);
+            }
+
+        }
+
+    };
+    
 }());

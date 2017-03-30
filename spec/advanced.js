@@ -95,7 +95,7 @@
 
       it('can flatten nested arrays', function() {
         var nestedArray = [1, [2], [3, [[[4]]]]];
-
+        debugger;
         expect(_.flatten(nestedArray)).to.eql([1, 2, 3, 4]);
       });
     });
